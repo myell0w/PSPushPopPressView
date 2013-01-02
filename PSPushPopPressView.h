@@ -55,7 +55,7 @@
 }
 
 /// the delegate for the PushPopPressView
-@property (nonatomic, unsafe_unretained) id<PSPushPopPressViewDelegate> pushPopPressViewDelegate;
+@property (nonatomic, unsafe_unretained) IBOutlet id<PSPushPopPressViewDelegate> pushPopPressViewDelegate;
 
 /// returns true if fullscreen is enabled
 @property (nonatomic, readonly, getter=isFullscreen) BOOL fullscreen;

@@ -43,71 +43,81 @@
     }
 }
 
+- (void)awakeFromNib
+{
+    [self setup];
+}
+
 - (id)initWithFrame:(CGRect)frame_ {
     if ((self = [super initWithFrame:frame_])) {
-        self.userInteractionEnabled = YES;
-        self.multipleTouchEnabled = YES;
-
-        scaleTransform_ = CGAffineTransformIdentity;
-        rotateTransform_ = CGAffineTransformIdentity;
-        panTransform_ = CGAffineTransformIdentity;
-		initialIndex_ = 0;
-        allowSingleTapSwitch_ = YES;
-		keepShadow_ = NO;
-
-        UIPinchGestureRecognizer* pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchPanRotate:)];
-        pinchRecognizer.cancelsTouchesInView = NO;
-        pinchRecognizer.delaysTouchesBegan = NO;
-        pinchRecognizer.delaysTouchesEnded = NO;
-        pinchRecognizer.delegate = self;
-        [self addGestureRecognizer: pinchRecognizer];
-
-        UIRotationGestureRecognizer* rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(pinchPanRotate:)];
-        rotationRecognizer.cancelsTouchesInView = NO;
-        rotationRecognizer.delaysTouchesBegan = NO;
-        rotationRecognizer.delaysTouchesEnded = NO;
-        rotationRecognizer.delegate = self;
-        [self addGestureRecognizer: rotationRecognizer];
-
-        panRecognizer_ = [[UIPanGestureRecognizer alloc] initWithTarget: self action:@selector(pinchPanRotate:)];
-        panRecognizer_.cancelsTouchesInView = NO;
-        panRecognizer_.delaysTouchesBegan = NO;
-        panRecognizer_.delaysTouchesEnded = NO;
-        panRecognizer_.delegate = self;
-        panRecognizer_.minimumNumberOfTouches = 2;
-        panRecognizer_.maximumNumberOfTouches = 2;
-        [self addGestureRecognizer:panRecognizer_];
-
-        tapRecognizer_ = [[UITapGestureRecognizer alloc] initWithTarget: self action:@selector(tap:)];
-        tapRecognizer_.delegate = self;
-        tapRecognizer_.cancelsTouchesInView = NO;
-        tapRecognizer_.delaysTouchesBegan = NO;
-        tapRecognizer_.delaysTouchesEnded = NO;
-        [self addGestureRecognizer:tapRecognizer_];
-
-        doubleTouchRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapped:)];
-        doubleTouchRecognizer.delegate = self;
-        doubleTouchRecognizer.cancelsTouchesInView = NO;
-        doubleTouchRecognizer.delaysTouchesBegan = NO;
-        doubleTouchRecognizer.delaysTouchesEnded = NO;
-        doubleTouchRecognizer.numberOfTouchesRequired = 2;
-        doubleTouchRecognizer.minimumPressDuration = 0.f;
-        [self addGestureRecognizer:doubleTouchRecognizer];
-
-        self.layer.shadowRadius = 15.0f;
-        self.layer.shadowOffset = CGSizeMake(5.0f, 5.0f);
-        self.layer.shadowOpacity = 0.4f;
-        self.layer.shadowColor = [UIColor blackColor].CGColor;
-        self.layer.shadowPath = [UIBezierPath bezierPathWithRect:self.bounds].CGPath;
-        self.layer.shadowOpacity = 0.0f;
-
-        // manually track rotations and adapt fullscreen
-        // needed if we rotate within a fullscreen animation and miss the autorotate event
-        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(detectOrientation) name:UIDeviceOrientationDidChangeNotification object:nil];
+        [self setup];
     }
 
     return self;
+}
+
+- (void)setup
+{
+    self.userInteractionEnabled = YES;
+    self.multipleTouchEnabled = YES;
+    
+    scaleTransform_ = CGAffineTransformIdentity;
+    rotateTransform_ = CGAffineTransformIdentity;
+    panTransform_ = CGAffineTransformIdentity;
+    initialIndex_ = 0;
+    allowSingleTapSwitch_ = YES;
+    keepShadow_ = NO;
+    
+    UIPinchGestureRecognizer* pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchPanRotate:)];
+    pinchRecognizer.cancelsTouchesInView = NO;
+    pinchRecognizer.delaysTouchesBegan = NO;
+    pinchRecognizer.delaysTouchesEnded = NO;
+    pinchRecognizer.delegate = self;
+    [self addGestureRecognizer: pinchRecognizer];
+    
+    UIRotationGestureRecognizer* rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(pinchPanRotate:)];
+    rotationRecognizer.cancelsTouchesInView = NO;
+    rotationRecognizer.delaysTouchesBegan = NO;
+    rotationRecognizer.delaysTouchesEnded = NO;
+    rotationRecognizer.delegate = self;
+    [self addGestureRecognizer: rotationRecognizer];
+    
+    panRecognizer_ = [[UIPanGestureRecognizer alloc] initWithTarget: self action:@selector(pinchPanRotate:)];
+    panRecognizer_.cancelsTouchesInView = NO;
+    panRecognizer_.delaysTouchesBegan = NO;
+    panRecognizer_.delaysTouchesEnded = NO;
+    panRecognizer_.delegate = self;
+    panRecognizer_.minimumNumberOfTouches = 2;
+    panRecognizer_.maximumNumberOfTouches = 2;
+    [self addGestureRecognizer:panRecognizer_];
+    
+    tapRecognizer_ = [[UITapGestureRecognizer alloc] initWithTarget: self action:@selector(tap:)];
+    tapRecognizer_.delegate = self;
+    tapRecognizer_.cancelsTouchesInView = NO;
+    tapRecognizer_.delaysTouchesBegan = NO;
+    tapRecognizer_.delaysTouchesEnded = NO;
+    [self addGestureRecognizer:tapRecognizer_];
+    
+    doubleTouchRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapped:)];
+    doubleTouchRecognizer.delegate = self;
+    doubleTouchRecognizer.cancelsTouchesInView = NO;
+    doubleTouchRecognizer.delaysTouchesBegan = NO;
+    doubleTouchRecognizer.delaysTouchesEnded = NO;
+    doubleTouchRecognizer.numberOfTouchesRequired = 2;
+    doubleTouchRecognizer.minimumPressDuration = 0.f;
+    [self addGestureRecognizer:doubleTouchRecognizer];
+    
+    self.layer.shadowRadius = 15.0f;
+    self.layer.shadowOffset = CGSizeMake(5.0f, 5.0f);
+    self.layer.shadowOpacity = 0.4f;
+    self.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.layer.shadowPath = [UIBezierPath bezierPathWithRect:self.bounds].CGPath;
+    self.layer.shadowOpacity = 0.0f;
+    
+    // manually track rotations and adapt fullscreen
+    // needed if we rotate within a fullscreen animation and miss the autorotate event
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(detectOrientation) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)dealloc {

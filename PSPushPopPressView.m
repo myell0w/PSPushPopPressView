@@ -545,7 +545,27 @@
     if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]] && [touch.view isKindOfClass: [UIButton class]]) {
         return NO;
     }
+    
+    BOOL allowsManipulation = YES;
+    if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewShouldAllowManipulation:)])
+        allowsManipulation = [self.pushPopPressViewDelegate pushPopPressViewShouldAllowManipulation:self];
+    
+    if (![gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]] && !allowsManipulation)
+        return NO;
+    
     return YES;
+}
+
+- (void)moveToFullscreenWindowAnimated:(BOOL)animated bounces:(BOOL)bounces {
+    if (self.isFullscreen) return;
+    
+    [self moveToFullscreenAnimated:animated bounces:bounces];
+}
+
+- (void)moveToOriginalFrameAnimated:(BOOL)animated bounces:(BOOL)bounces {
+    if (self.isFullscreen == NO) return;
+    
+    [self moveViewToOriginalPositionAnimated:animated bounces:bounces];
 }
 
 - (void)moveToFullscreenWindowAnimated:(BOOL)animated {

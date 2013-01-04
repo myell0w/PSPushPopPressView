@@ -31,6 +31,7 @@
 
 - (BOOL)pushPopPressViewShouldAllowTapToAnimateToOriginalFrame:(PSPushPopPressView *)pushPopPressView;
 - (BOOL)pushPopPressViewShouldAllowTapToAnimateToFullscreenWindowFrame:(PSPushPopPressView *)pushPopPressView;
+- (BOOL)pushPopPressViewShouldAllowManipulation:(PSPushPopPressView*)pushPopPressView;
 
 /// only active if allowSingleTapSwitch is enabled (default)
 - (void)pushPopPressViewDidReceiveTap:(PSPushPopPressView *)pushPopPressView;
@@ -77,9 +78,11 @@
 
 /// animate/move to fullscreen
 - (void)moveToFullscreenWindowAnimated:(BOOL)animated;
+- (void)moveToFullscreenWindowAnimated:(BOOL)animated bounces:(BOOL)bounces;
 
 /// animate/moves to initialFrame size
 - (void)moveToOriginalFrameAnimated:(BOOL)animated;
+- (void)moveToOriginalFrameAnimated:(BOOL)animated bounces:(BOOL)bounces;
 
 /// align view based on current size (either initialPosition or fullscreen)
 - (void)alignViewAnimated:(BOOL)animated bounces:(BOOL)bounces;

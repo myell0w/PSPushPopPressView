@@ -492,6 +492,9 @@
             break;
         } 
         case UIGestureRecognizerStateChanged: {
+            if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidManipulate:)]) {
+                [self.pushPopPressViewDelegate pushPopPressViewDidManipulate:self];
+            }
             break;
         }
         case UIGestureRecognizerStateEnded: {

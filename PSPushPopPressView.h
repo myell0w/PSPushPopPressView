@@ -17,6 +17,9 @@
 /// manipulation starts, user has >= 2 fingers on the view
 - (void)pushPopPressViewDidStartManipulation:(PSPushPopPressView *)pushPopPressView;
 
+/// manipulating
+- (void)pushPopPressViewDidManipulate:(PSPushPopPressView *)pushPopPressView;
+
 /// manipulation stopps, user has < 2 fingers on the view
 - (void)pushPopPressViewDidFinishManipulation:(PSPushPopPressView *)pushPopPressView;
 

@@ -20,6 +20,11 @@
     BOOL beingDragged_;
     BOOL gesturesEnded_;
     BOOL scaleActive_;
+    BOOL wasPinned_;
+    
+    CGAffineTransform _previousScaleTransform;
+    CGAffineTransform _previousRotateTransform;
+    CGAffineTransform _previousPanTransform;
 }
 @property (nonatomic, getter=isBeingDragged) BOOL beingDragged;
 @property (nonatomic, getter=isFullscreen) BOOL fullscreen;
@@ -61,9 +66,10 @@
     self.userInteractionEnabled = YES;
     self.multipleTouchEnabled = YES;
     
-    scaleTransform_ = CGAffineTransformIdentity;
-    rotateTransform_ = CGAffineTransformIdentity;
-    panTransform_ = CGAffineTransformIdentity;
+    scaleTransform_ = _previousScaleTransform = CGAffineTransformIdentity;
+    rotateTransform_ = _previousRotateTransform = CGAffineTransformIdentity;
+    panTransform_ = _previousPanTransform = CGAffineTransformIdentity;
+    
     initialIndex_ = 0;
     allowSingleTapSwitch_ = YES;
     keepShadow_ = NO;
@@ -394,10 +400,44 @@
     gesturesEnded_ = YES;
     if (pinch) {
         scaleActive_ = NO;
-        if (pinch.velocity >= 2.0f) {
-            [self moveToFullscreenAnimated:YES bounces:YES];
-        } else {
-            [self alignViewAnimated:YES bounces:YES];
+        
+        BOOL allowsFullScreenZooming = NO;
+        if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewShouldAllowFullScreenZooming:)])
+            allowsFullScreenZooming = [self.pushPopPressViewDelegate pushPopPressViewShouldAllowFullScreenZooming:self];
+        
+        if(allowsFullScreenZooming && self.isFullscreen)
+        {
+            BOOL isScaleSmallerThanFullScreen = sqrt(pow(scaleTransform_.a, 2) + pow(scaleTransform_.c, 2)) < 1;
+            if(isScaleSmallerThanFullScreen)
+            {
+                if(wasPinned_)
+                {
+                    [self moveToFullscreenAnimated:YES bounces:YES];
+                    _previousPanTransform = CGAffineTransformIdentity;
+                    _previousRotateTransform = CGAffineTransformIdentity;
+                    _previousScaleTransform = CGAffineTransformIdentity;
+                    wasPinned_ = NO;
+                }
+                else
+                {
+                    [self moveViewToOriginalPositionAnimated:YES bounces:YES];
+                }
+            }
+            else
+            {
+                _previousPanTransform = panTransform_;
+                _previousRotateTransform = rotateTransform_;
+                _previousScaleTransform = scaleTransform_;
+                wasPinned_ = YES;
+            }
+        }
+        else
+        {
+            if (pinch.velocity >= 2.0f) {
+                [self moveToFullscreenAnimated:YES bounces:YES];
+            } else {
+                [self alignViewAnimated:YES bounces:YES];
+            }
         }
     } else {
         [self alignViewAnimated:YES bounces:YES];
@@ -407,16 +447,16 @@
 - (void)modifiedGesture:(UIGestureRecognizer *)gesture {
     if ([gesture isKindOfClass:[UIPinchGestureRecognizer class]]) {
         UIPinchGestureRecognizer *pinch = (UIPinchGestureRecognizer *)gesture;
-        scaleTransform_ = CGAffineTransformScale(CGAffineTransformIdentity, pinch.scale, pinch.scale);
+        scaleTransform_ = CGAffineTransformScale(_previousScaleTransform, pinch.scale, pinch.scale);
     }
     else if ([gesture isKindOfClass:[UIRotationGestureRecognizer class]]) {
         UIRotationGestureRecognizer *rotate = (UIRotationGestureRecognizer *)gesture;
-        rotateTransform_ = CGAffineTransformRotate(CGAffineTransformIdentity, rotate.rotation);
+        rotateTransform_ = CGAffineTransformRotate(_previousRotateTransform, rotate.rotation);
     }
     else if ([gesture isKindOfClass:[UIPanGestureRecognizer class]]) {
         UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *)gesture;
         CGPoint translation = [pan translationInView: self.superview];
-        panTransform_ = CGAffineTransformTranslate(CGAffineTransformIdentity, translation.x, translation.y);
+        panTransform_ = CGAffineTransformTranslate(_previousPanTransform, translation.x, translation.y);
     }
 
     self.transform = CGAffineTransformConcat(CGAffineTransformConcat(scaleTransform_, rotateTransform_), panTransform_);
@@ -522,6 +562,18 @@
 
                 [self moveToFullscreenWindowAnimated:YES];
             } else {
+                
+                BOOL didZoomAndPinViewInFullScreen = !CGAffineTransformIsIdentity(CGAffineTransformConcat(_previousPanTransform, CGAffineTransformConcat(_previousRotateTransform, _previousScaleTransform)));
+                if(didZoomAndPinViewInFullScreen)
+                {
+                    [self moveToFullscreenAnimated:YES bounces:YES];
+                    _previousPanTransform = CGAffineTransformIdentity;
+                    _previousRotateTransform = CGAffineTransformIdentity;
+                    _previousScaleTransform = CGAffineTransformIdentity;
+                    wasPinned_ = NO;
+                    return;
+                }
+                
                 if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewShouldAllowTapToAnimateToOriginalFrame:)]) {
                     if ([self.pushPopPressViewDelegate pushPopPressViewShouldAllowTapToAnimateToOriginalFrame: self] == NO) return;
                 }

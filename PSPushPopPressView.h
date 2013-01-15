@@ -35,6 +35,7 @@
 - (BOOL)pushPopPressViewShouldAllowTapToAnimateToOriginalFrame:(PSPushPopPressView *)pushPopPressView;
 - (BOOL)pushPopPressViewShouldAllowTapToAnimateToFullscreenWindowFrame:(PSPushPopPressView *)pushPopPressView;
 - (BOOL)pushPopPressViewShouldAllowManipulation:(PSPushPopPressView*)pushPopPressView;
+- (BOOL)pushPopPressViewShouldAllowFullScreenZooming:(PSPushPopPressView*)pushPopPressView;
 
 /// only active if allowSingleTapSwitch is enabled (default)
 - (void)pushPopPressViewDidReceiveTap:(PSPushPopPressView *)pushPopPressView;

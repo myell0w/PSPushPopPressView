@@ -80,6 +80,9 @@
 /// if true, shadow does not appear/disappear when animating
 @property (nonatomic, assign) BOOL keepShadow;
 
+///if true it is animating transition
+@property (nonatomic, readonly) BOOL isAnimating;
+
 /// animate/move to fullscreen
 - (void)moveToFullscreenWindowAnimated:(BOOL)animated;
 - (void)moveToFullscreenWindowAnimated:(BOOL)animated bounces:(BOOL)bounces;

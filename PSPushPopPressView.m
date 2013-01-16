@@ -65,7 +65,7 @@
 {
     self.userInteractionEnabled = YES;
     self.multipleTouchEnabled = YES;
-    
+     _isAnimating = NO;
     scaleTransform_ = _previousScaleTransform = CGAffineTransformIdentity;
     rotateTransform_ = _previousRotateTransform = CGAffineTransformIdentity;
     panTransform_ = _previousPanTransform = CGAffineTransformIdentity;
@@ -266,6 +266,7 @@
                         options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction
                      animations:^{
                          // always reset transforms
+                         _isAnimating = YES;
                          rotateTransform_ = CGAffineTransformIdentity;
                          panTransform_ = CGAffineTransformIdentity;
                          scaleTransform_ = CGAffineTransformIdentity;
@@ -303,6 +304,7 @@
                                                      if (finished && !self.isBeingDragged) {
                                                          [self detachViewToWindow:NO];
                                                      }
+                                                      _isAnimating = NO;
                                                      if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidAnimateToOriginalFrame:)]) {
                                                          [self.pushPopPressViewDelegate pushPopPressViewDidAnimateToOriginalFrame: self];
                                                      }
@@ -311,6 +313,7 @@
                              if (!self.isBeingDragged) {
                                  //[self detachViewToWindow:NO];
                              }
+                              _isAnimating = NO;
                              if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidAnimateToOriginalFrame:)]) {
                                  [self.pushPopPressViewDelegate pushPopPressViewDidAnimateToOriginalFrame: self];
                              }
@@ -330,6 +333,7 @@
      // view hierarchy change needs some time propagating, don't use UIViewAnimationOptionBeginFromCurrentState when just changed
                         options:(viewChanged ? 0 : UIViewAnimationOptionBeginFromCurrentState) | UIViewAnimationOptionAllowUserInteraction
                      animations:^{
+                         _isAnimating = YES;
                          scaleTransform_ = CGAffineTransformIdentity;
                          rotateTransform_ = CGAffineTransformIdentity;
                          panTransform_ = CGAffineTransformIdentity;
@@ -348,12 +352,14 @@
                              [UIView animateWithDuration:kPSAnimationDuration delay:0.f options:UIViewAnimationOptionAllowUserInteraction animations:^{
                                  [self setFrame:windowBounds];
                              } completion:^(BOOL finished) {
+                                 _isAnimating = NO;
                                  if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidAnimateToFullscreenWindowFrame:)]) {
                                      [self.pushPopPressViewDelegate pushPopPressViewDidAnimateToFullscreenWindowFrame: self];
                                  }
                                  anchorPointUpdated = NO;
                              }];
                          }else {
+                             _isAnimating = NO;
                              if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidAnimateToFullscreenWindowFrame:)]) {
                                  [self.pushPopPressViewDelegate pushPopPressViewDidAnimateToFullscreenWindowFrame: self];
                              }
@@ -511,14 +517,10 @@
 - (void)doubleTapped:(UITapGestureRecognizer *)gesture {
     switch (gesture.state) {
         case UIGestureRecognizerStateBegan: {
-            self.beingDragged = YES;
-            if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidStartManipulation:)]) {
-                [self.pushPopPressViewDelegate pushPopPressViewDidStartManipulation:self];
-            }
-            break; 
+            break;
         }
-        case UIGestureRecognizerStatePossible: { 
-            break; 
+        case UIGestureRecognizerStatePossible: {
+            break;
         }
         case UIGestureRecognizerStateCancelled: {
             self.beingDragged = NO;
@@ -527,22 +529,27 @@
                 [self.pushPopPressViewDelegate pushPopPressViewDidFinishManipulation:self];
             }
             break;
-        } 
+        }
         case UIGestureRecognizerStateFailed: {
             break;
-        } 
+        }
         case UIGestureRecognizerStateChanged: {
-            if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidManipulate:)]) {
-                [self.pushPopPressViewDelegate pushPopPressViewDidManipulate:self];
+            if (NO == self.beingDragged) {
+                if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidStartManipulation:)]) {
+                    [self.pushPopPressViewDelegate pushPopPressViewDidStartManipulation:self];
+                }
             }
+            self.beingDragged = YES;
             break;
         }
         case UIGestureRecognizerStateEnded: {
-            self.beingDragged = NO;
             [self resetGestureRecognizers];
-            if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidFinishManipulation:)]) {
-                [self.pushPopPressViewDelegate pushPopPressViewDidFinishManipulation:self];
+            if (self.beingDragged) {
+                if ([self.pushPopPressViewDelegate respondsToSelector: @selector(pushPopPressViewDidFinishManipulation:)]) {
+                    [self.pushPopPressViewDelegate pushPopPressViewDidFinishManipulation:self];
+                }
             }
+            self.beingDragged = NO;
             break;
         }
     }

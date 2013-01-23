@@ -465,7 +465,13 @@
         panTransform_ = CGAffineTransformTranslate(_previousPanTransform, translation.x, translation.y);
     }
 
-    self.transform = CGAffineTransformConcat(CGAffineTransformConcat(scaleTransform_, rotateTransform_), panTransform_);
+    BOOL shouldDisableTransformations = NO;
+    if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewShouldDisableTransformations:)]) {
+        shouldDisableTransformations = [self.pushPopPressViewDelegate pushPopPressViewShouldDisableTransformations:self];
+    }
+    
+    if(!shouldDisableTransformations)
+        self.transform = CGAffineTransformConcat(CGAffineTransformConcat(scaleTransform_, rotateTransform_), panTransform_);
 }
 
 // scale and rotation transforms are applied relative to the layer's anchor point

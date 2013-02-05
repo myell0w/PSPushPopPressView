@@ -25,6 +25,9 @@
     CGAffineTransform _previousScaleTransform;
     CGAffineTransform _previousRotateTransform;
     CGAffineTransform _previousPanTransform;
+    
+    UIView* _destinationSuperview;
+    NSUInteger _destinationSuperviewIndex;
 }
 @property (nonatomic, getter=isBeingDragged) BOOL beingDragged;
 @property (nonatomic, getter=isFullscreen) BOOL fullscreen;
@@ -150,7 +153,12 @@
 }
 
 - (UIView *)rootView {
-    return self.window.rootViewController.view;
+    if(_destinationSuperview) {
+        return _destinationSuperview;
+    }
+    else {
+        return self.window.rootViewController.view;
+    }
 }
 
 - (CGRect)windowBounds {
@@ -174,6 +182,15 @@
 }
 
 - (BOOL)detachViewToWindow:(BOOL)enable {
+    
+    if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewSuperviewInFullscreen:)]) {
+        _destinationSuperview = [self.pushPopPressViewDelegate pushPopPressViewSuperviewInFullscreen:self];
+    }
+    
+    if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewSuperviewIndexInFullscreen:)]) {
+        _destinationSuperviewIndex = [self.pushPopPressViewDelegate pushPopPressViewSuperviewIndexInFullscreen:self];
+    }
+    
     BOOL viewChanged = NO;
     UIView *rootView = [self rootView];
 
@@ -181,7 +198,14 @@
 		initialIndex_ = [self.superview.subviews indexOfObject:self];
         initialSuperview_ = self.superview;
         CGRect newFrame = [self.superview convertRect:initialFrame_ toView:rootView];
-        [rootView addSubview:self];
+
+        if(_destinationSuperview) {
+            [rootView insertSubview:self atIndex:_destinationSuperviewIndex];
+        }
+        else {
+            [rootView addSubview:self];
+        }
+        
         [self setFrame:newFrame];
         viewChanged = YES;
     }else if(!enable) {

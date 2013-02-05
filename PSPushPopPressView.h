@@ -38,6 +38,9 @@
 - (BOOL)pushPopPressViewShouldAllowFullScreenZooming:(PSPushPopPressView*)pushPopPressView;
 - (BOOL)pushPopPressViewShouldDisableTransformations:(PSPushPopPressView*)pushPopPressView;
 
+- (UIView*)pushPopPressViewSuperviewInFullscreen:(PSPushPopPressView*)pushPopPressView;
+- (NSUInteger)pushPopPressViewSuperviewIndexInFullscreen:(PSPushPopPressView*)pushPopPressView;
+
 /// only active if allowSingleTapSwitch is enabled (default)
 - (void)pushPopPressViewDidReceiveTap:(PSPushPopPressView *)pushPopPressView;
 

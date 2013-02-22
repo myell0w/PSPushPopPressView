@@ -28,6 +28,8 @@
     
     UIView* _destinationSuperview;
     NSUInteger _destinationSuperviewIndex;
+    
+    UIView *_maskView;
 }
 @property (nonatomic, getter=isBeingDragged) BOOL beingDragged;
 @property (nonatomic, getter=isFullscreen) BOOL fullscreen;
@@ -206,6 +208,9 @@
             [rootView addSubview:self];
         }
         
+        _maskView = [[UIView alloc] initWithFrame:rootView.bounds];
+        [rootView insertSubview:_maskView belowSubview:self];
+        
         [self setFrame:newFrame];
         viewChanged = YES;
     }else if(!enable) {
@@ -215,6 +220,8 @@
         }
         [self setFrame:initialFrame_];
         initialSuperview_ = nil;
+        
+        [_maskView removeFromSuperview];
     }
     return viewChanged;
 }

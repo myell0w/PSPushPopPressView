@@ -466,6 +466,16 @@
                 _previousRotateTransform = rotateTransform_;
                 _previousScaleTransform = scaleTransform_;
                 wasPinned_ = YES;
+                
+                CGPoint transformedCenter = CGPointMake(self.center.x + _previousPanTransform.tx, self.center.y + _previousPanTransform.ty);
+                if(!CGRectContainsPoint([self rootView].bounds, transformedCenter)) {
+                    
+                    [self moveToFullscreenAnimated:YES bounces:YES];
+                    _previousPanTransform = CGAffineTransformIdentity;
+                    _previousRotateTransform = CGAffineTransformIdentity;
+                    _previousScaleTransform = CGAffineTransformIdentity;
+                    wasPinned_ = NO;
+                }
             }
         }
         else
@@ -508,6 +518,12 @@
 // scale and rotation transforms are applied relative to the layer's anchor point
 // this method moves a gesture recognizer's view's anchor point between the user's fingers
 - (void)adjustAnchorPointForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer {
+    
+    if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewShouldAllowFullScreenZooming:)])
+        if([self.pushPopPressViewDelegate pushPopPressViewShouldAllowFullScreenZooming:self]) {
+            return;
+        }
+    
     if (!anchorPointUpdated) {
         UIView *piece = gestureRecognizer.view;
         CGPoint locationInView = [gestureRecognizer locationInView:piece];

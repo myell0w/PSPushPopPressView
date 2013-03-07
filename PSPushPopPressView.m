@@ -155,11 +155,26 @@
 }
 
 - (UIView *)rootView {
+    
+    if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewSuperviewInFullscreen:)]) {
+        _destinationSuperview = [self.pushPopPressViewDelegate pushPopPressViewSuperviewInFullscreen:self];
+    }
+    
+    if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewSuperviewIndexInFullscreen:)]) {
+        _destinationSuperviewIndex = [self.pushPopPressViewDelegate pushPopPressViewSuperviewIndexInFullscreen:self];
+    }
+    
     if(_destinationSuperview) {
         return _destinationSuperview;
     }
     else {
-        return self.window.rootViewController.view;
+        UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
+        
+        while (topController.presentedViewController) {
+            topController = topController.presentedViewController;
+        }
+        
+        return topController.view;
     }
 }
 
@@ -184,14 +199,6 @@
 }
 
 - (BOOL)detachViewToWindow:(BOOL)enable {
-    
-    if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewSuperviewInFullscreen:)]) {
-        _destinationSuperview = [self.pushPopPressViewDelegate pushPopPressViewSuperviewInFullscreen:self];
-    }
-    
-    if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewSuperviewIndexInFullscreen:)]) {
-        _destinationSuperviewIndex = [self.pushPopPressViewDelegate pushPopPressViewSuperviewIndexInFullscreen:self];
-    }
     
     BOOL viewChanged = NO;
     UIView *rootView = [self rootView];

@@ -46,13 +46,6 @@
 @synthesize ignoreStatusBar = ignoreStatusBar_;
 @synthesize keepShadow = keepShadow_;
 
-// adapt frame for fullscreen
-- (void)detectOrientation {
-    if (self.isFullscreen) {
-        self.frame = [self windowBounds];
-    }
-}
-
 - (void)awakeFromNib
 {
     [self setup];
@@ -128,7 +121,6 @@
     // manually track rotations and adapt fullscreen
     // needed if we rotate within a fullscreen animation and miss the autorotate event
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(detectOrientation) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)dealloc {

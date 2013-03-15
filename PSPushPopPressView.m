@@ -121,6 +121,12 @@
     // manually track rotations and adapt fullscreen
     // needed if we rotate within a fullscreen animation and miss the autorotate event
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+}
+
+- (void)applicationDidEnterBackground:(NSNotification*)sender
+{
+    [_maskView removeFromSuperview];
 }
 
 - (void)dealloc {

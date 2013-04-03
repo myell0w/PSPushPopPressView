@@ -666,6 +666,8 @@
         return NO;
     }
     
+    if(_isAnimating) return NO;//Ignore gestures while animating (sceriu 03.04.2013)
+    
     BOOL allowsManipulation = YES;
     if([self.pushPopPressViewDelegate respondsToSelector:@selector(pushPopPressViewShouldAllowManipulation:)])
         allowsManipulation = [self.pushPopPressViewDelegate pushPopPressViewShouldAllowManipulation:self];

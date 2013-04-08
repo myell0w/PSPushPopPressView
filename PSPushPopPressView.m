@@ -70,7 +70,7 @@
     
     initialIndex_ = 0;
     allowSingleTapSwitch_ = YES;
-    keepShadow_ = NO;
+    keepShadow_ = YES;
     
     UIPinchGestureRecognizer* pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchPanRotate:)];
     pinchRecognizer.cancelsTouchesInView = NO;
@@ -111,7 +111,7 @@
     doubleTouchRecognizer.minimumPressDuration = 0.f;
     [self addGestureRecognizer:doubleTouchRecognizer];
     
-    self.layer.shadowRadius = 15.0f;
+    self.layer.shadowRadius = 2.0f;
     self.layer.shadowOffset = CGSizeMake(5.0f, 5.0f);
     self.layer.shadowOpacity = 0.4f;
     self.layer.shadowColor = [UIColor blackColor].CGColor;
@@ -258,14 +258,14 @@
     if (animated) {
         CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
         anim.fromValue = [NSNumber numberWithFloat:1.0f];
-        anim.toValue = [NSNumber numberWithFloat:0.0f];
+        anim.toValue = [NSNumber numberWithFloat:1.0f];
         anim.duration = kPSShadowFadeDuration;
         [self.layer addAnimation:anim forKey:@"shadowOpacity"];
     }else {
         [self.layer removeAnimationForKey:@"shadowOpacity"];
     }
 
-    self.layer.shadowOpacity = 0.0f;
+    self.layer.shadowOpacity = 1.0f;
 }
 
 - (void)setBeingDragged:(BOOL)newBeingDragged {
